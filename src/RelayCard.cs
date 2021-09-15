@@ -61,23 +61,38 @@ namespace K8090.ManagedClient
 
         public void SetRelayOn(int relayIndex)
         {
-            if (relayIndex > 7) return;
-
+            if (relayIndex > 7 || relayIndex < 0) return;
             SendCommand(Command.RelayOn, MaskFor(relayIndex));
+        }
+
+        public void SetRelaysOn(params int[] relayIndexes)
+        {
+            byte mask = MaskFor(relayIndexes.Where(x => x > 0 && x < 8).ToArray());
+            SendCommand(Command.RelayOn, mask);
         }
 
         public void SetRelayOff(int relayIndex)
         {
-            if (relayIndex > 7) return;
-
+            if (relayIndex > 7 || relayIndex < 0) return;
             SendCommand(Command.RelayOff, MaskFor(relayIndex));
+        }
+
+        public void SetRelaysOff(params int[] relayIndexes)
+        {
+            byte mask = MaskFor(relayIndexes.Where(x => x > 0 && x < 8).ToArray());
+            SendCommand(Command.RelayOff, mask);
         }
 
         public void ToggleRelay(int relayIndex)
         {
-            if (relayIndex > 7) return;
-
+            if (relayIndex > 7 || relayIndex < 0) return;
             SendCommand(Command.RelayToggle, MaskFor(relayIndex));
+        }
+
+        public void ToggleRelays(params int[] relayIndexes)
+        {
+            byte mask = MaskFor(relayIndexes.Where(x => x > 0 && x < 8).ToArray());
+            SendCommand(Command.RelayToggle, mask);
         }
 
         public void SetRelays(bool state, params int[] relayIndexes)
@@ -85,7 +100,7 @@ namespace K8090.ManagedClient
             byte mask = 0x00;
             foreach(int relayIndex in relayIndexes)
             {
-                if (relayIndex < 8)
+                if (relayIndex < 8 && relayIndex > 0)
                 {
                     mask = mask.SetBit(relayIndex, true);
                 }
@@ -143,7 +158,7 @@ namespace K8090.ManagedClient
             {
                 int buttonIndex = modePair.Key;
                 ButtonMode mode = modePair.Value;
-                if (buttonIndex > 7) break;
+                if (buttonIndex > 7 || buttonIndex < 0) break;
                 if (mode == ButtonMode.Momentary) momentary = momentary.SetBit(buttonIndex, true);
                 if (mode == ButtonMode.Toggle) toggle = toggle.SetBit(buttonIndex, true);
                 if (mode == ButtonMode.Timer) timer = timer.SetBit(buttonIndex, true);
@@ -162,7 +177,7 @@ namespace K8090.ManagedClient
             byte relays = 0;
             foreach (int relayIndex in relayIndexes)
             {
-                if (relayIndex < 8)
+                if (relayIndex < 8 && relayIndex > 0)
                 {
                     relays = relays.SetBit(relayIndex, true);
                 }
@@ -176,7 +191,7 @@ namespace K8090.ManagedClient
             byte relays = 0;
             foreach (int relayIndex in relayIndexes)
             {
-                if (relayIndex < 8)
+                if (relayIndex < 8 && relayIndex > 0)
                 {
                     relays = relays.SetBit(relayIndex, true);
                 }
@@ -220,7 +235,7 @@ namespace K8090.ManagedClient
             byte relays = 0;
             foreach (int relayIndex in relayIndexes)
             {
-                if (relayIndex < 8)
+                if (relayIndex < 8 && relayIndex > 0)
                 {
                     relays = relays.SetBit(relayIndex, true);
                 }
@@ -371,9 +386,12 @@ namespace K8090.ManagedClient
         private byte MaskFor(params int[] relayIndexes)
         {
             byte mask = 0;
-            foreach(int index in relayIndexes)
+            foreach (int index in relayIndexes)
             {
-                mask = (byte)(mask | (1 << index));
+                if (index > 0 && index < 8)
+                {
+                    mask = (byte)(mask | (1 << index));
+                }
             }
             return mask;
         }
