@@ -71,3 +71,8 @@ Buttons can be set to one of three modes:
 ## The Event Jumper ##
 
 If this jumper on the board is set to ON, then button presses do not affect the relays, but the ***OnButtonStateChange*** event is still fired. This is useful if you attach separate buttons to the button interface port on the board, so you can intercept a button press in software and react accordingly.
+
+
+## Acknowledgements ##
+
+This library uses SerialPortStream by Jason Curl (https://www.nuget.org/packages/SerialPortStream)
