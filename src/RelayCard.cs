@@ -160,9 +160,9 @@ namespace K8090.ManagedClient
                 {
                     relays = relays.SetBit(relayIndex, true);
                 }
-
-                SendCommand(Command.StartRelayTimer, relays, delayInSeconds.HighByte(), delayInSeconds.LowByte());
             }
+
+            SendCommand(Command.StartRelayTimer, relays, delayInSeconds.HighByte(), delayInSeconds.LowByte());
         }
 
         public void SetRelayTimerDefaultDelay(ushort delayInSeconds, params int[] relayIndexes)
