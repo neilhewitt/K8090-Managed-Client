@@ -12,8 +12,11 @@ The client talks directly to the serial port to which the relay board is assigne
 * Disconnect() - closes the connection
 * Reset() - sets all relays on the board to OFF
 * SetRelayOn(*int index*) - sets a relay (with index 0-7) to ON
+* SetRelaysOn(*params int[] relayIndexes*) - sets a group of relays ON
 * SetRelayOff(*int index*) - sets a relay to OFF
+* SetRelaysOff(*params int[] relayIndexes*) - sets a group of relays OFF
 * ToggleRelay(*int index*) - toggles the state of a relay
+* ToggleRelays(*params int[] relayIndexes*) - toggles a group of relays
 * SetRelays(*bool state*, *params int[] relayIndexes*) - sets the relays whose indexes are given in *relayIndexes* to the specified state
 * GetRelayStatus() - returns an *IDictionary<int, RelayStatus>* giving the status of all relays (see **RelayStatus** below)
 * GetButtonModes() - returns an *IDictionary<int, ButtonMode>* giving the mode of all buttons (see **ButtonMode** below)
