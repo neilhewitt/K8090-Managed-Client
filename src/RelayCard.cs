@@ -143,6 +143,7 @@ namespace K8090.ManagedClient
             {
                 int buttonIndex = modePair.Key;
                 ButtonMode mode = modePair.Value;
+                if (buttonIndex > 7) break;
                 if (mode == ButtonMode.Momentary) momentary = momentary.SetBit(buttonIndex, true);
                 if (mode == ButtonMode.Toggle) toggle = toggle.SetBit(buttonIndex, true);
                 if (mode == ButtonMode.Timer) timer = timer.SetBit(buttonIndex, true);
@@ -161,10 +162,13 @@ namespace K8090.ManagedClient
             byte relays = 0;
             foreach (int relayIndex in relayIndexes)
             {
-                relays = relays.SetBit(relayIndex, true);
-            }
+                if (relayIndex < 8)
+                {
+                    relays = relays.SetBit(relayIndex, true);
+                }
 
-            SendCommand(Command.StartRelayTimer, relays, delayInSeconds.HighByte(), delayInSeconds.LowByte());
+                SendCommand(Command.StartRelayTimer, relays, delayInSeconds.HighByte(), delayInSeconds.LowByte());
+            }
         }
 
         public void SetRelayTimerDefaultDelay(ushort delayInSeconds, params int[] relayIndexes)
@@ -172,7 +176,10 @@ namespace K8090.ManagedClient
             byte relays = 0;
             foreach (int relayIndex in relayIndexes)
             {
-                relays = relays.SetBit(relayIndex, true);
+                if (relayIndex < 8)
+                {
+                    relays = relays.SetBit(relayIndex, true);
+                }
             }
 
             SendCommand(Command.SetRelayTimerDelay, relays, delayInSeconds.HighByte(), delayInSeconds.LowByte());
@@ -213,7 +220,10 @@ namespace K8090.ManagedClient
             byte relays = 0;
             foreach (int relayIndex in relayIndexes)
             {
-                relays = relays.SetBit(relayIndex, true);
+                if (relayIndex < 8)
+                {
+                    relays = relays.SetBit(relayIndex, true);
+                }
             }
 
             SendCommand(Command.QueryRelayTimerDelay, relays, (byte)(remainingDelay ? 2 : 1));
