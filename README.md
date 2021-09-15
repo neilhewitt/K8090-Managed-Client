@@ -30,7 +30,7 @@ The client talks directly to the serial port to which the relay board is assigne
 * ResetFactoryDefaults() - resets the board to factory defaults
 * IsEventJumperSet() - returns true if the event jumper is set, false if not
 
-Many APIs follow the pattern of taking a params int[] of relay indexes to be affected by the operation. Indexes run from 0-7. 
+Many APIs follow the pattern of taking a _params int[]_ of relay indexes to be affected by the operation. Indexes run from 0-7. 
 
 ***SetButtonModes*** takes an *IDictionary<int, ButtonMode>* giving a specific button mode for the relay indicated by the integer in each dictionary pair.
 
