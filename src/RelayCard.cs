@@ -95,27 +95,6 @@ namespace K8090.ManagedClient
             SendCommand(Command.RelayToggle, mask);
         }
 
-        public void SetRelays(bool state, params int[] relayIndexes)
-        {
-            byte mask = 0x00;
-            foreach(int relayIndex in relayIndexes)
-            {
-                if (relayIndex < 8 && relayIndex > 0)
-                {
-                    mask = mask.SetBit(relayIndex, true);
-                }
-            }
-
-            if (state)
-            {
-                SendCommand(Command.RelayOn, mask);
-            }
-            else
-            {
-                SendCommand(Command.RelayOff, mask);    
-            }
-        }
-
         public IDictionary<int, RelayStatus> GetRelayStatus()
         {
             SendCommand(Command.QueryRelayState);
