@@ -153,10 +153,10 @@ namespace K8090.ManagedClient
 
         public void StartRelayTimers(params int[] relayIndexes)
         {
-            StartRelayTimers(0, relayIndexes);
+            SetAndStartRelayTimers(0, relayIndexes);
         }
 
-        public void StartRelayTimers(ushort delayInSeconds, params int[] relayIndexes)
+        public void SetAndStartRelayTimers(ushort delayInSeconds, params int[] relayIndexes)
         {
             byte relays = 0;
             foreach (int relayIndex in relayIndexes)
@@ -165,11 +165,6 @@ namespace K8090.ManagedClient
             }
 
             SendCommand(Command.StartRelayTimer, relays, delayInSeconds.HighByte(), delayInSeconds.LowByte());
-        }
-
-        public void SetRelayTimerDefaultDelay(ushort delayInSeconds)
-        {
-            SendCommand(Command.SetRelayTimerDelay, 0xFF, delayInSeconds.HighByte(), delayInSeconds.LowByte());
         }
 
         public void SetRelayTimerDefaultDelay(ushort delayInSeconds, params int[] relayIndexes)
