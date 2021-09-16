@@ -110,7 +110,7 @@ namespace K8090.ManagedClient
             for (int i = 0; i < 8; i++)
             {
                 ButtonMode mode = packet.Mask.GetBit(i) ? ButtonMode.Momentary : 
-                    packet.Param1.GetBit(1) ? ButtonMode.Toggle : 
+                    packet.Param1.GetBit(i) ? ButtonMode.Toggle : 
                     ButtonMode.Timer;
                 buttonModes.Add(i, mode);
             }
