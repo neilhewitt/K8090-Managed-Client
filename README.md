@@ -20,7 +20,7 @@ The client talks directly to the serial port to which the relay board is assigne
     {
         card.SetRelayOn(i); // turn on relay number i
         Thread.Sleep(1000);
-        cars.SetRelayOff(i); // turn the relay off again
+        card.SetRelayOff(i); // turn the relay off again
     }
   
 This code connects to a K8090 board on COM4, sets all relays to OFF, then loops through each relay, turns it on for 1 second, and then off again. 
