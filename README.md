@@ -6,6 +6,27 @@ Since Velleman has refused to provide 64-bit versions of their .NET / COM librar
 
 The client talks directly to the serial port to which the relay board is assigned. Commands are sent and events received via 7-byte data packets. The client wraps this process and provides suitably abstracted methods to access the various functions of the board.
 
+## Getting started ##
+
+    using K8090.ManagedClient;
+    
+    ...
+
+    RelayCard card = new RelayCard("COM4");
+    card.Connect();
+
+    card.Reset();
+    for (int i = 0; i < 8; i++)
+    {
+        card.SetRelayOn(i); // turn on relay number i
+        Thread.Sleep(1000);
+        card.SetRelayOff(i); // turn the relay off again
+    }
+  
+This code connects to a K8090 board on COM4, sets all relays to OFF, then loops through each relay, turns it on for 1 second, and then off again. 
+
+It's pretty simple!
+
 ## Client API ##
 
 * Connect(*string comPort*) - attempts to connect to a board on the COM port specified ie "COM4"
