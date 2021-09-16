@@ -16,7 +16,9 @@ namespace K8090.ManagedClient
         private SerialPortStream _serialPort;
         private byte[] _buffer = new byte[BUFFER_SIZE];
         private byte _relayState = 0;
-        private bool _suspendEvents = false;
+        private bool _ignoreResponses = false;
+        private bool _responseReceived = false;
+        private IEnumerable<DataPacket> _packetsReceived;
 
         public bool Connected => _serialPort.IsOpen;
         public bool[] RelayState => _relayState.GetBits(0, 8);
@@ -48,13 +50,12 @@ namespace K8090.ManagedClient
         public void Reset()
         {
             EnsureConnected();
-
             if (_relayState == 0) return;
 
-            _suspendEvents = true;
+            _ignoreResponses = true;
             SendCommandAndAwaitAllResponses(Command.RelayOff, 0xFF);
             _relayState = 0;
-            _suspendEvents = false;
+            _ignoreResponses = false;
         }
 
         public void SetRelayOn(int relayIndex)
@@ -299,12 +300,30 @@ namespace K8090.ManagedClient
         {
             List<DataPacket> packets = new();
             DateTime started = DateTime.Now;
-            while (true)
+            while (!_responseReceived && !_ignoreResponses)
             {
                 if (DateTime.Now.Subtract(started) > TimeSpan.FromMilliseconds(WAIT_TIMEOUT_IN_MILLISECONDS))
                 {
                     throw new ManagedClientException("Wait for reply from K8090 board timed out. Check connection.");
                 }
+
+                Thread.Sleep(1);
+            }
+
+            _responseReceived = false;
+            return (_ignoreResponses ? null : _packetsReceived);
+        }
+
+        private void ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            if (!_ignoreResponses)
+            {
+                List<DataPacket> packets = new();
 
                 int read = _serialPort.Read(_buffer, 0, BUFFER_SIZE);
                 if (read >= PACKET_SIZE)
@@ -317,25 +336,11 @@ namespace K8090.ManagedClient
                         index += PACKET_SIZE;
                         if (read - index < PACKET_SIZE)
                         {
-                            return packets;
+                            break;
                         }
                     }
                 }
 
-                Thread.Sleep(10);
-            }
-        }
-
-        private void ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            if (!_suspendEvents)
-            {
-                IEnumerable<DataPacket> packets = AwaitAllResponses();
                 foreach (DataPacket packet in packets)
                 {
                     switch (packet.Command)
@@ -362,6 +367,9 @@ namespace K8090.ManagedClient
                             break;
                     }
                 }
+
+                _packetsReceived = packets;
+                _responseReceived = true;
             }
         }
 
