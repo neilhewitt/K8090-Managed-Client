@@ -31,8 +31,7 @@ namespace K8090.ManagedClient
                 _serialPort.Open();
 
                 // get the initial relay state as some relays may already be on
-                SendCommand(Command.QueryRelayState);
-                _relayState = WaitSingleData(Command.RelayStatus).Param1;
+                _relayState = SendCommandAndAwaitResponse(Command.QueryRelayState, Response.RelayStatus).Param1;
             }
             catch (InvalidOperationException ex)
             {
@@ -53,9 +52,8 @@ namespace K8090.ManagedClient
             if (_relayState == 0) return;
 
             _suspendEvents = true;
-            SendCommand(Command.RelayOff, 0xFF);
+            SendCommandAndAwaitAllResponses(Command.RelayOff, 0xFF);
             _relayState = 0;
-            WaitData(); // clear the pending events
             _suspendEvents = false;
         }
 
@@ -67,7 +65,7 @@ namespace K8090.ManagedClient
 
         public void SetRelaysOn(params int[] relayIndexes)
         {
-            byte mask = MaskFor(relayIndexes.Where(x => x > 0 && x < 8).ToArray());
+            byte mask = MaskFor(relayIndexes.Where(x => x >= 0 && x < 8).ToArray());
             SendCommand(Command.RelayOn, mask);
         }
 
@@ -79,7 +77,7 @@ namespace K8090.ManagedClient
 
         public void SetRelaysOff(params int[] relayIndexes)
         {
-            byte mask = MaskFor(relayIndexes.Where(x => x > 0 && x < 8).ToArray());
+            byte mask = MaskFor(relayIndexes.Where(x => x >= 0 && x < 8).ToArray());
             SendCommand(Command.RelayOff, mask);
         }
 
@@ -91,22 +89,19 @@ namespace K8090.ManagedClient
 
         public void ToggleRelays(params int[] relayIndexes)
         {
-            byte mask = MaskFor(relayIndexes.Where(x => x > 0 && x < 8).ToArray());
+            byte mask = MaskFor(relayIndexes.Where(x => x >= 0 && x < 8).ToArray());
             SendCommand(Command.RelayToggle, mask);
         }
 
         public IDictionary<int, RelayStatus> GetRelayStatus()
         {
-            SendCommand(Command.QueryRelayState);
-            DataPacket packet = WaitSingleData(Command.RelayStatus);
-            return BuildRelayStatus(packet);
+            return BuildRelayStatus(SendCommandAndAwaitResponse(Command.QueryRelayState, Response.RelayStatus));
         }
 
         public IDictionary<int, ButtonMode> GetButtonModes()
         {
             Dictionary<int, ButtonMode> buttonModes = new();
-            SendCommand(Command.QueryButtonMode);
-            DataPacket packet = WaitSingleData(Command.QueryButtonMode);
+            DataPacket packet = SendCommandAndAwaitResponse(Command.QueryButtonMode, Response.QueryButtonMode);
             for (int i = 0; i < 8; i++)
             {
                 ButtonMode mode = packet.Mask.GetBit(i) ? ButtonMode.Momentary : 
@@ -156,7 +151,7 @@ namespace K8090.ManagedClient
             byte relays = 0;
             foreach (int relayIndex in relayIndexes)
             {
-                if (relayIndex < 8 && relayIndex > 0)
+                if (relayIndex < 8 && relayIndex >= 0)
                 {
                     relays = relays.SetBit(relayIndex, true);
                 }
@@ -170,7 +165,7 @@ namespace K8090.ManagedClient
             byte relays = 0;
             foreach (int relayIndex in relayIndexes)
             {
-                if (relayIndex < 8 && relayIndex > 0)
+                if (relayIndex < 8 && relayIndex >= 0)
                 {
                     relays = relays.SetBit(relayIndex, true);
                 }
@@ -191,9 +186,7 @@ namespace K8090.ManagedClient
 
         public string GetFirmwareVersion()
         {
-            SendCommand(Command.FirmwareVersion);
-            DataPacket packet = WaitSingleData(Command.FirmwareVersion);
-
+            DataPacket packet = SendCommandAndAwaitResponse(Command.FirmwareVersion, Response.FirmwareVersion);
             return $"{ packet.Param1.ToString() }.{ packet.Param2.ToString() }";
         }
 
@@ -204,46 +197,7 @@ namespace K8090.ManagedClient
 
         public bool IsEventJumperSet()
         {
-            SendCommand(Command.JumperStatus);
-            DataPacket packet = WaitSingleData(Command.JumperStatus);
-            return (packet.Param1 > 1);
-        }
-
-        private IDictionary<int, ushort> GetRelayTimerDelays(bool remainingDelay, params int[] relayIndexes)
-        {
-            byte relays = 0;
-            foreach (int relayIndex in relayIndexes)
-            {
-                if (relayIndex < 8 && relayIndex > 0)
-                {
-                    relays = relays.SetBit(relayIndex, true);
-                }
-            }
-
-            SendCommand(Command.QueryRelayTimerDelay, relays, (byte)(remainingDelay ? 2 : 1));
-            IEnumerable<DataPacket> packets = WaitData(Command.QueryRelayTimerDelay);
-
-            Dictionary<int, ushort> delays = new();
-            foreach (DataPacket packet in packets)
-            {
-                for (int i = 0; i < 8; i++)
-                {
-                    if (packet.Mask.GetBit(i))
-                    {
-                        delays.Add(i, (packet.Param2, packet.Param1).ToWord());
-                    }
-                }
-            }
-
-            return delays;
-        }
-
-        private void SendCommand(Command command, byte mask = 0, byte param1 = 0, byte param2 = 0)
-        {
-            EnsureConnected();
-
-            DataPacket packet = new DataPacket(command, mask, param1, param2);
-            _serialPort.Write(packet.AsByteArray);
+            return (SendCommandAndAwaitResponse(Command.JumperStatus, Response.JumperStatus).Param1 > 1);
         }
 
         private IDictionary<int, RelayStatus> BuildRelayStatus(DataPacket packet)
@@ -282,17 +236,66 @@ namespace K8090.ManagedClient
             return statusList;
         }
 
-        private DataPacket WaitSingleData(Command command)
+        private IDictionary<int, ushort> GetRelayTimerDelays(bool remainingDelay, params int[] relayIndexes)
         {
-            return WaitData(command).FirstOrDefault(x => x.Command == command);
+            byte relays = 0;
+            foreach (int relayIndex in relayIndexes)
+            {
+                if (relayIndex < 8 && relayIndex >= 0)
+                {
+                    relays = relays.SetBit(relayIndex, true);
+                }
+            }
+
+            SendCommand(Command.QueryRelayTimerDelay, relays, (byte)(remainingDelay ? 2 : 1));
+            IEnumerable<DataPacket> packets = SendCommandAndAwaitResponses(Command.QueryRelayTimerDelay, Response.QueryRelayTimerDelay);
+
+            Dictionary<int, ushort> delays = new();
+            foreach (DataPacket packet in packets)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    if (packet.Mask.GetBit(i))
+                    {
+                        delays.Add(i, (packet.Param2, packet.Param1).ToWord());
+                    }
+                }
+            }
+
+            return delays;
         }
 
-        private IEnumerable<DataPacket> WaitData(Command command)
+        private void SendCommand(Command command, byte mask = 0, byte param1 = 0, byte param2 = 0)
         {
-            return WaitData().Where(x => x.Command == command);
+            EnsureConnected();
+
+            DataPacket packet = new DataPacket(command, mask, param1, param2);
+            _serialPort.Write(packet.AsByteArray);
         }
 
-        private IEnumerable<DataPacket> WaitData()
+        private DataPacket SendCommandAndAwaitResponse(Command command, Response response, byte mask = 0, byte param1 = 0, byte param2 = 0)
+        {
+            return SendCommandAndAwaitResponses(command, response, mask, param1, param2).FirstOrDefault();
+        }
+
+        private IEnumerable<DataPacket> SendCommandAndAwaitResponses(Command command, Response response, byte mask = 0, byte param1 = 0, byte param2 = 0)
+        {
+            IEnumerable<DataPacket> packets = SendCommandAndAwaitAllResponses(command, mask, param1, param2);
+            if (response != Response.None)
+            {
+                command = (Command)response; // response is a subset of command with the same cardinal values
+            }
+
+            return packets.Where(x => x.Command == command);
+        }
+
+        private IEnumerable<DataPacket> SendCommandAndAwaitAllResponses(Command command, byte mask = 0, byte param1 = 0, byte param2 = 0)
+        {
+            SendCommand(command, mask, param1, param2);
+            return AwaitAllResponses();
+        }
+
+        private IEnumerable<DataPacket> AwaitAllResponses()
         {
             List<DataPacket> packets = new();
             DateTime started = DateTime.Now;
@@ -302,14 +305,14 @@ namespace K8090.ManagedClient
                 {
                     throw new ManagedClientException("Wait for reply from K8090 board timed out. Check connection.");
                 }
-                
+
                 int read = _serialPort.Read(_buffer, 0, BUFFER_SIZE);
                 if (read >= PACKET_SIZE)
                 {
                     int index = 0;
                     while (true)
                     {
-                        DataPacket packet = new DataPacket(_buffer[index..(index+PACKET_SIZE)]);
+                        DataPacket packet = new DataPacket(_buffer[index..(index + PACKET_SIZE)]);
                         packets.Add(packet);
                         index += PACKET_SIZE;
                         if (read - index < PACKET_SIZE)
@@ -318,7 +321,7 @@ namespace K8090.ManagedClient
                         }
                     }
                 }
-                
+
                 Thread.Sleep(10);
             }
         }
@@ -332,7 +335,7 @@ namespace K8090.ManagedClient
         {
             if (!_suspendEvents)
             {
-                IEnumerable<DataPacket> packets = WaitData();
+                IEnumerable<DataPacket> packets = AwaitAllResponses();
                 foreach (DataPacket packet in packets)
                 {
                     switch (packet.Command)
@@ -367,7 +370,7 @@ namespace K8090.ManagedClient
             byte mask = 0;
             foreach (int index in relayIndexes)
             {
-                if (index > 0 && index < 8)
+                if (index >= 0 && index < 8)
                 {
                     mask = (byte)(mask | (1 << index));
                 }
