@@ -24,6 +24,11 @@ namespace K8090.ManagedClient.Mocks
         public event EventHandler<SerialDataReceivedEventArgs> DataReceived;
         public event EventHandler<SerialErrorReceivedEventArgs> ErrorReceived;
 
+        public void PressButton(int buttonIndex, TimeSpan holdFor)
+        {
+            _protocol.PressButton(buttonIndex, holdFor);
+        }
+
         public void Open()
         {
             _connected = true;
