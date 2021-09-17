@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagedTester", "ManagedTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K8090.ManagedClient.Test.Unit", "K8090.ManagedClient.Test\K8090.ManagedClient.Test.Unit.csproj", "{D165DC66-5F9C-437A-A05F-C098A5EA6A4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K8090.Managed.Client.Mocks", "K8090.Managed.Client.Mocks\K8090.Managed.Client.Mocks.csproj", "{0A615C56-DAE6-4719-9B34-5288C6EEB99A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K8090.Managed.Client.Mocks", "K8090.ManagedClient.Mocks\K8090.ManagedClient.Mocks.csproj", "{0A615C56-DAE6-4719-9B34-5288C6EEB99A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
