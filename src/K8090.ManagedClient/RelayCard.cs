@@ -13,7 +13,7 @@ namespace K8090.ManagedClient
         public const int BUFFER_SIZE = PACKET_SIZE * 8; // in some cases we may get up to 8 packets in a single operation
         public const int WAIT_TIMEOUT_IN_MILLISECONDS = 3000;
 
-        private SerialPortStream _serialPort;
+        private ISerialPortStream _serialPort;
         private byte[] _buffer = new byte[BUFFER_SIZE];
         private byte _relayState = 0;
         private bool _ignoreResponses = false;
@@ -33,7 +33,9 @@ namespace K8090.ManagedClient
                 _serialPort.Open();
 
                 // get the initial relay state as some relays may already be on
-                _relayState = SendCommandAndAwaitResponse(Command.QueryRelayState, Response.RelayStatus).Param1;
+                _ignoreResponses = true;
+                _relayState = SendCommandAndAwaitResponse(Command.QueryRelayState, Response.RelayStatus)?.Param1 ?? 0;
+                _ignoreResponses = false;
             }
             catch (InvalidOperationException ex)
             {
@@ -271,7 +273,7 @@ namespace K8090.ManagedClient
             EnsureConnected();
 
             DataPacket packet = new DataPacket(command, mask, param1, param2);
-            _serialPort.Write(packet.AsByteArray);
+            _serialPort.Write(packet.AsByteArray, 0, 7);
         }
 
         private DataPacket SendCommandAndAwaitResponse(Command command, Response response, byte mask = 0, byte param1 = 0, byte param2 = 0)
@@ -311,7 +313,7 @@ namespace K8090.ManagedClient
             }
 
             _responseReceived = false;
-            return (_ignoreResponses ? null : _packetsReceived);
+            return (_ignoreResponses ? new DataPacket[0] : _packetsReceived);
         }
 
         private void ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
@@ -402,6 +404,14 @@ namespace K8090.ManagedClient
             }
 
             _serialPort?.Dispose();
+        }
+
+        public RelayCard(string portName, ISerialPortStream portStream)
+        {
+            _serialPort = portStream;
+            _serialPort.Handshake = Handshake.None;
+            _serialPort.DataReceived += DataReceived;
+            _serialPort.ErrorReceived += ErrorReceived;
         }
 
         public RelayCard(string portName)

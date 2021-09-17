@@ -1,5 +1,6 @@
 ﻿using System;
 using K8090.ManagedClient;
+using K8090.ManagedClient.Mocks;
 using RJCP.IO.Ports;
 using System.Threading;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace ManagedTester
 
             try
             {
-                RelayCard card = new("COM4");
+                RelayCard card = new("COM4", new MockSerialPortStream());
                 card.OnRelayStateChanged += OnRelayStateChanged; // will display all relay change event data
                 card.Connect();
                 card.Reset();
@@ -29,6 +30,8 @@ namespace ManagedTester
                     card.SetRelayOff(0);
                     Thread.Sleep(500);
                 }
+
+                Console.ReadLine();
             }
             catch (Exception ex)
             {
