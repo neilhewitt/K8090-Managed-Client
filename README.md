@@ -38,7 +38,7 @@ If you're looking to develop code using the library but you don't have a K8090 a
 
 The ***MockSerialPortStream*** class implements *ISerialPortStream* and behaves as if it were a real serial port connected to a real K8090 board. You can use the APIs of ***RelayCard*** and get the same results, in most cases, as you would with the actual hardware. 
 
-If you keep a reference to the MockSerialPortStream object (as the concrete type), you can call *PressButton(int buttonIndex, TimeSpan holdFor)* to simulate pressing one of the buttons on the board for a time span, and this will generate the correct actions and events as if the hardware button was pressed.
+If you keep a reference to the _**MockSerialPortStream**_ object (as the concrete type), you can call *PressButton(int buttonIndex, TimeSpan holdFor)* to simulate pressing one of the buttons on the board for a time span, and this will generate the correct actions and events as if the hardware button was pressed.
 
 
 ## Client API ##
