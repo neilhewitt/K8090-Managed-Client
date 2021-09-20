@@ -28,15 +28,17 @@ This code connects to a K8090 board on COM4, sets all relays to OFF, then loops 
 It's pretty simple!
 
 
-## Mocking for development without the board ##
+## Mocking for development or testing without the board ##
 
-If you're looking to develop code using the library but you don't have a K8090 available yet, you can still use the library by injecting a mock. Include the _K8009.ManagedClient.Mocks_ assembly and create a mock relay card:
+If you're looking to develop code using the library but you don't have a K8090 available yet, or you want to use it in code you will be unit testing, you can still use the library by using a mock. Include the _K8009.ManagedClient.Mocks_ assembly and instead of ***RelayCard*** use:
 
     MockRelayCard card = new MockRelayCard("COM4");
 
 The ***MockSerialPortStream*** used in the ***MockRelayCard*** implements *ISerialPortStream* and behaves as if it were a real serial port connected to a real K8090 board. You can use the APIs of ***RelayCard*** and get the same results, in most cases, as you would with the actual hardware. 
 
 With the ***MockRelayCard***, you can call *SimulateButtonPress(int buttonIndex, TimeSpan holdFor)* to simulate pressing one of the buttons on the board for a time span, and this will generate the correct actions and events as if the hardware button was pressed.
+
+Note: When creating the ***MockRelayCard*** instance you can specify an optional boolean parameter in the constructor _makeDelaySecondsIntoMilliseconds_. If _true_, all simulated delays are changed from seconds (as on the actual board) to milliseconds. This is useful for test suites where you don't want to delay for a second or more. See the included test suite for an example of this approach. 
 
 
 ## Client API ##
