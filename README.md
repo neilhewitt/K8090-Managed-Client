@@ -30,15 +30,13 @@ It's pretty simple!
 
 ## Mocking for development without the board ##
 
-If you're looking to develop code using the library but you don't have a K8090 available yet, you can still use the library by injecting a mock. Use the alternate ***RelayCard*** constructor:
+If you're looking to develop code using the library but you don't have a K8090 available yet, you can still use the library by injecting a mock. Include the _K8009.ManagedClient.Mocks_ assembly and create a mock relay card:
 
-    RelayCard card = new RelayCard("COM4", new MockSerialPortStream());
-    
-(You'll need to include _K8090.ManagedClient.Mocks_)
+    MockRelayCard card = new MockRelayCard("COM4");
 
-The ***MockSerialPortStream*** class implements *ISerialPortStream* and behaves as if it were a real serial port connected to a real K8090 board. You can use the APIs of ***RelayCard*** and get the same results, in most cases, as you would with the actual hardware. 
+The ***MockSerialPortStream*** used in the ***MockRelayCard*** implements *ISerialPortStream* and behaves as if it were a real serial port connected to a real K8090 board. You can use the APIs of ***RelayCard*** and get the same results, in most cases, as you would with the actual hardware. 
 
-If you keep a reference to the _**MockSerialPortStream**_ object (as the concrete type), you can call *PressButton(int buttonIndex, TimeSpan holdFor)* to simulate pressing one of the buttons on the board for a time span, and this will generate the correct actions and events as if the hardware button was pressed.
+With the ***MockRelayCard***, you can call *SimulateButtonPress(int buttonIndex, TimeSpan holdFor)* to simulate pressing one of the buttons on the board for a time span, and this will generate the correct actions and events as if the hardware button was pressed.
 
 
 ## Client API ##
