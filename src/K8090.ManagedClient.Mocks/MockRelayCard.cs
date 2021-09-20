@@ -20,7 +20,7 @@ namespace K8090.ManagedClient.Mocks
             _mockSerialPort.SimulateButtonPress(buttonIndex, holdFor);
         }
 
-        public MockRelayCard(string comPort, bool makeDelaySecondsIntoMilliseconds) 
+        public MockRelayCard(string comPort, bool makeDelaySecondsIntoMilliseconds = false) 
             : base(comPort, new MockSerialPortStream(makeDelaySecondsIntoMilliseconds))
         {
             _mockSerialPort = _serialPort as MockSerialPortStream;
