@@ -94,7 +94,7 @@ namespace K8090.ManagedClient.Test.Unit
             _card.SetAndStartRelayTimers(delay, 0);
 
             Assert.That(_card.RelayState[0], Is.True);
-            Thread.Sleep(delay * 2); // need to wait at least 20ms to account for the mock protocol run
+            Thread.Sleep(100); // need to wait to account for the mock protocol run - on first run the compile can slow this down so much the test would fail
             Assert.That(_card.RelayState[0], Is.False);
         }
 
@@ -104,7 +104,7 @@ namespace K8090.ManagedClient.Test.Unit
             _card.StartRelayTimers(0);
 
             Assert.That(_card.RelayState[0], Is.True);
-            Thread.Sleep(20); // need to wait at least 20ms to account for the mock protocol run
+            Thread.Sleep(100); // need to wait to account for the mock protocol run
             Assert.That(_card.RelayState[0], Is.False);
         }
     }
