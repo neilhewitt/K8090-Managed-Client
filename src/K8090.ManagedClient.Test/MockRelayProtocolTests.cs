@@ -41,6 +41,18 @@ namespace K8090.ManagedClient.Test.Unit
         }
 
         [Test]
+        public void WhenButtonPressedAndJumperIsOnRelaysAreUnaffected()
+        {
+            _card.OnSimulateButtonPress += (sender, e) => {
+                Assert.That(_relayStatus.CurrentlyOn, Is.False);
+                Assert.That(_buttonStatus.PressedNow, Is.True);
+            };
+
+            _card.SimulateSetJumper(true);
+            _card.SimulateButtonPress(0, TimeSpan.FromMilliseconds(10));
+        }
+
+        [Test]
         public void WhenMomentaryButtonPressedAndJumperIsOffStatusUpdatesCorrectly()
         {
             _card.OnSimulateButtonPress += (sender, e) => {

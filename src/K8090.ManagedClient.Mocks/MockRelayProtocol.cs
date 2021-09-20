@@ -23,8 +23,10 @@ namespace K8090.ManagedClient.Mocks
         public event EventHandler OnSimulatedButtonPress;
         public event EventHandler OnSimulatedButtonRelease;
 
-        public void SimulateButtonPress(int buttonIndex, TimeSpan holdFor)
+        public void SimulateButtonPress(int buttonIndex, TimeSpan holdFor, bool jumperOn)
         {
+            _eventJumper = jumperOn;
+
             byte mask = 0;
             mask = SetBit(mask, buttonIndex, true);
             switch(_buttonModes[buttonIndex])

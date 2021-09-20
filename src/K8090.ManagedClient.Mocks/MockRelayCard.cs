@@ -11,13 +11,19 @@ namespace K8090.ManagedClient.Mocks
     public class MockRelayCard : RelayCard
     {
         private MockSerialPortStream _mockSerialPort;
+        private bool _jumperOn;
 
         public event EventHandler OnSimulateButtonPress;
         public event EventHandler OnSimulateButtonRelease;
 
+        public void SimulateSetJumper(bool on)
+        {
+            _jumperOn = on;
+        }
+
         public void SimulateButtonPress(int buttonIndex, TimeSpan holdFor)
         {
-            _mockSerialPort.SimulateButtonPress(buttonIndex, holdFor);
+            _mockSerialPort.SimulateButtonPress(buttonIndex, holdFor, _jumperOn);
         }
 
         public MockRelayCard(string comPort, bool makeDelaySecondsIntoMilliseconds = false) 

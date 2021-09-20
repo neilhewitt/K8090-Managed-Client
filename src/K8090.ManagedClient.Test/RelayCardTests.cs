@@ -55,7 +55,7 @@ namespace K8090.ManagedClient.Test.Unit
         }
 
         [Test]
-        public void WhenSetRelaysOnCalledSpecifiedRelaysIndicateOn()
+        public void WhenSetRelaysOnCorrectRelaysIndicateOn()
         {
             _card.SetRelaysOn(0, 2, 4, 6);
             Assert.That(_card.RelayState, Is.EqualTo(new bool[] { true, false, true, false, true, false, true, false }));
@@ -94,7 +94,7 @@ namespace K8090.ManagedClient.Test.Unit
             _card.SetAndStartRelayTimers(delay, 0);
 
             Assert.That(_card.RelayState[0], Is.True);
-            Thread.Sleep(100); // need to wait to account for the mock protocol run - on first run the compile can slow this down so much the test would fail
+            Thread.Sleep(100); // need to wait to account for the mock protocol run (on first run the compile can slow this down so much the test would fail)
             Assert.That(_card.RelayState[0], Is.False);
         }
 
