@@ -2,9 +2,9 @@
 {
     public enum ButtonMode
     {
+        InvalidButtonIndex,
         Momentary,
         Toggle,
-        Timer,
-        InvalidButtonIndex
+        Timer
     }
 }

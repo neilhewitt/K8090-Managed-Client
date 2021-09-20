@@ -2,14 +2,14 @@
 {
     public class ButtonStatus
     {
-        public int RelayIndex { get; init; }
+        public int ButtonIndex { get; init; }
         public bool PressedNow { get; init; }
         public bool WasPressed { get; init; }
         public bool WasReleased { get; init; }
 
         public ButtonStatus(int index, bool pressedNow, bool wasPressed, bool wasReleased)
         {
-            RelayIndex = index;
+            ButtonIndex = index;
             PressedNow = pressedNow;
             WasPressed = wasPressed;
             WasReleased = wasReleased;

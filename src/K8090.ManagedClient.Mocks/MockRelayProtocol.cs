@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace K8090.ManagedClient.Mocks
@@ -16,24 +17,43 @@ namespace K8090.ManagedClient.Mocks
         private bool[] _relays = new bool[8]; 
         private ButtonMode[] _buttonModes = new ButtonMode[8];
         private bool _eventJumper = false;
+        private bool _timersInMilliseconds = false;
+        private bool _dataSent = false;
 
-        public void PressButton(int buttonIndex, TimeSpan holdFor)
+        public event EventHandler OnSimulatedButtonPress;
+        public event EventHandler OnSimulatedButtonRelease;
+
+        public void SimulateButtonPress(int buttonIndex, TimeSpan holdFor)
         {
+            byte mask = 0;
+            mask = SetBit(mask, buttonIndex, true);
             switch(_buttonModes[buttonIndex])
             {
                 case ButtonMode.Toggle:
-                    if (!_eventJumper) SetRelays((byte)buttonIndex, !_relays[buttonIndex]);
+                    if (!_eventJumper) SetRelays(mask, !_relays[buttonIndex]);
                     SendButtonStatus(buttonIndex, true);
-                    System.Threading.Thread.Sleep(holdFor.Milliseconds);
+                    OnSimulatedButtonPress?.Invoke(this, EventArgs.Empty);
+                    
+                    Task.Delay(holdFor.Milliseconds);
+
                     SendButtonStatus(buttonIndex, false);
+                    OnSimulatedButtonRelease?.Invoke(this, EventArgs.Empty);
+
                     break;
+
                 case ButtonMode.Momentary:
-                    if (!_eventJumper) SetRelays((byte)buttonIndex, true);
+                    if (!_eventJumper) SetRelays(mask, true);
                     SendButtonStatus(buttonIndex, true);
-                    System.Threading.Thread.Sleep(holdFor.Milliseconds);
-                    if (!_eventJumper) SetRelays((byte)buttonIndex, false);
+                    OnSimulatedButtonPress?.Invoke(this, EventArgs.Empty);
+
+                    Task.Delay(holdFor.Milliseconds);
+
+                    if (!_eventJumper) SetRelays(mask, false);
                     SendButtonStatus(buttonIndex, false);
+                    OnSimulatedButtonRelease?.Invoke(this, EventArgs.Empty);
+
                     break;
+
                 case ButtonMode.Timer:
                     SendButtonStatus(buttonIndex, true);
                     if (!_eventJumper)
@@ -41,15 +61,21 @@ namespace K8090.ManagedClient.Mocks
                         if (_timersActive[buttonIndex])
                         {
                             _timers[buttonIndex].Stop();
-                            SetRelays((byte)buttonIndex, false);
+                            SetRelays(mask, false);
                         }
                         else
                         {
-                            ActivateTimers((byte)buttonIndex, 0, 0);
+                            ActivateTimers(mask, 0, 0);
+                            SetRelays(mask, true);
                         }
                     }
-                    System.Threading.Thread.Sleep(holdFor.Milliseconds);
+                    OnSimulatedButtonPress?.Invoke(this, EventArgs.Empty);
+
+                    Task.Delay(holdFor.Milliseconds);
+
                     SendButtonStatus(buttonIndex, false);
+                    OnSimulatedButtonRelease?.Invoke(this, EventArgs.Empty);
+
                     break;
             }
         }
@@ -61,20 +87,24 @@ namespace K8090.ManagedClient.Mocks
             Command command = (Command)request[1];
             byte mask = request[2];
             byte param1 = request[3];
-            byte param2 = request[4];   
+            byte param2 = request[4];
+            byte b1 = 0, b2 = 0, b3 = 0;
             switch (command)
             {
                 case Command.RelayOn:
                     SetRelays(mask, true);
                     break;
+
                 case Command.RelayOff:
                     SetRelays(mask, false);
                     break;
+
                 case Command.RelayToggle:
                     byte state = 0;
                     for (int i = 0; i < 8; i++) state = SetBit(state, i, !_relays[i]);
                     SetRelays(mask, state);
                     break;
+
                 case Command.SetButtonMode:
                     for (int i = 0; i < 8; i++)
                     {
@@ -83,10 +113,12 @@ namespace K8090.ManagedClient.Mocks
                         if (GetBit(param2, i)) _buttonModes[i] = ButtonMode.Timer;
                     }
                     break;
+
                 case Command.StartRelayTimer:
                     ActivateTimers(mask, param1, param2);
                     SetRelays(mask, true);
                     break;
+
                 case Command.SetRelayTimerDelay:
                     for (int i = 0; i < 8; i++)
                     {
@@ -100,17 +132,21 @@ namespace K8090.ManagedClient.Mocks
                         }
                     }
                     break;
+
                 case Command.ResetFactoryDefaults:
                     break;
+
                 case Command.QueryRelayState:
                 case Command.RelayStatus:
-                    byte b1 = 0, b2 = 0;
+                    b1 = 0;
+                    b2 = 0;
                     for (int i = 0; i < 8; i++)
                     {
                         if (_relays[i]) b1 = SetBit(b1, i, true);
                         if (_timersActive[i]) b2 = SetBit(b2, i, true);
                     }
                     return MakeData(Response.RelayStatus, 0x00, b1, b2);
+
                 case Command.QueryRelayTimerDelay:
                     List<byte> bytes = new();
                     for (int i = 0; i < 8; i++)
@@ -120,10 +156,23 @@ namespace K8090.ManagedClient.Mocks
                         bytes.AddRange(MakeData(Response.QueryRelayTimerDelay, mask, (byte)(_timerDelays[i] / 256), (byte)(_timerDelays[i] % 256)));
                     }
                     return bytes.ToArray();
-                case Command.ButtonStatus:
-                    return MakeData(Response.ButtonStatus);
+
+                case Command.QueryButtonMode:
+                    b1 = 0;
+                    b2 = 0;
+                    b3 = 0;
+                    for (int i = 0; i < 8; i++)
+                    {
+                        if (_buttonModes[i] == ButtonMode.Momentary) b1 = b1.SetBit(i, true);
+                        if (_buttonModes[i] == ButtonMode.Toggle) b2 = b2.SetBit(i, true);
+                        if (_buttonModes[i] == ButtonMode.Timer) b3 = b3.SetBit(i, true);
+
+                    }
+                    return MakeData(Response.QueryButtonMode, b1, b2, b3);
+
                 case Command.JumperStatus:
                     return MakeData(Response.JumperStatus);
+
                 case Command.FirmwareVersion:
                     return MakeData(Response.FirmwareVersion, 0, 10, 1);
             }
@@ -158,13 +207,20 @@ namespace K8090.ManagedClient.Mocks
             byte param1 = 0;
             byte param2 = 0;
 
+            _dataSent = false;
+
             for (int i = 0; i < 8; i++)
             {
                 if (_relays[i]) param1 = SetBit(param1, i, true);
                 if (_timersActive[i]) param2 = SetBit(param2, i, true);
             }
 
-            _serialPort.InvokeDataReceived(MakeData(Response.RelayStatus,mask, param1, param2));
+            _serialPort.InvokeDataReceived(
+                MakeData(Response.RelayStatus, mask, param1, param2)
+                );
+
+            while (!_dataSent) ;
+            _dataSent = false;
         }
 
         private void SendButtonStatus(int buttonIndex, bool pressed)
@@ -173,12 +229,17 @@ namespace K8090.ManagedClient.Mocks
             byte param1 = 0;
             byte param2 = 0;
 
+            _dataSent = false;
+
             _serialPort.InvokeDataReceived(MakeData(
                 Response.ButtonStatus,
                 mask = SetBit(mask, buttonIndex, pressed),
                 param1 = SetBit(param1, buttonIndex, pressed),
                 param2 = SetBit(param2, buttonIndex, !pressed)
                 ));
+            
+            while (!_dataSent) ;
+            _dataSent = false;
         }
 
         private void ActivateTimers(byte mask, byte param1, byte param2)
@@ -189,10 +250,13 @@ namespace K8090.ManagedClient.Mocks
                 {
                     Timer timer = _timers[i];
                     if (timer.Enabled) timer.Stop();
+
                     int delay = (param1 * 256) + param2;
                     if (delay == 0) delay = _timerDelays[i];
-                    timer.Interval = delay * 1000;
+
+                    timer.Interval = delay * (_timersInMilliseconds ? 1 : 1000);
                     _timersActive[i] = true;
+
                     timer.Start();
                 }
             }
@@ -202,8 +266,10 @@ namespace K8090.ManagedClient.Mocks
         {
             Timer timer = (Timer)sender;
             timer.Stop();
+
             int index = _timers.Single(x => x.Value == timer).Key;
             _timersActive[index] = false;
+
             byte mask = 0;
             mask = SetBit(mask, index, true);
             SetRelays(mask, false);
@@ -229,9 +295,16 @@ namespace K8090.ManagedClient.Mocks
             };
         }
 
-        public MockRelayProtocol(MockSerialPortStream serialPort)
+        private void DataReceived(object sender, RJCP.IO.Ports.SerialDataReceivedEventArgs e)
         {
+            _dataSent = true;
+        }
+
+        public MockRelayProtocol(MockSerialPortStream serialPort, bool timersInMilliseconds = false)
+        {
+            _timersInMilliseconds = timersInMilliseconds;
             _serialPort = serialPort;
+            _serialPort.DataReceived += DataReceived;
             for(int i = 0; i < 8; i++)
             {
                 _timers.Add(i, new System.Timers.Timer());

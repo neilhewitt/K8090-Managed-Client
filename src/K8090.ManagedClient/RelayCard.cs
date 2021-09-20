@@ -13,7 +13,7 @@ namespace K8090.ManagedClient
         public const int BUFFER_SIZE = PACKET_SIZE * 8; // in some cases we may get up to 8 packets in a single operation
         public const int WAIT_TIMEOUT_IN_MILLISECONDS = 3000;
 
-        private ISerialPortStream _serialPort;
+        protected ISerialPortStream _serialPort;
         private byte[] _buffer = new byte[BUFFER_SIZE];
         private byte _relayState = 0;
         private bool _ignoreResponses = false;
@@ -409,6 +409,7 @@ namespace K8090.ManagedClient
         public RelayCard(string portName, ISerialPortStream portStream)
         {
             _serialPort = portStream;
+            _serialPort.PortName = portName;
             _serialPort.Handshake = Handshake.None;
             _serialPort.DataReceived += DataReceived;
             _serialPort.ErrorReceived += ErrorReceived;

@@ -12,10 +12,18 @@ namespace K8090.ManagedClient.Mocks
     {
         private MockRelayProtocol _protocol;
         private bool _connected = false;
-        private string _portName = "COM4";
+        private string _portName = "COM1";
         private Handshake _handshake;
         private byte[] _data;
 
+        public event EventHandler OnSimulatedButtonPress;
+        public event EventHandler OnSimulatedButtonRelease;
+
+        public void SimulateButtonPress(int buttonIndex, TimeSpan holdFor)
+        {
+            _protocol.SimulateButtonPress(buttonIndex, holdFor);
+        }
+            
         #region STUFF WE USE
         public string PortName { get => _portName; set => _portName = value; }
         public bool IsOpen => _connected;
@@ -23,11 +31,6 @@ namespace K8090.ManagedClient.Mocks
 
         public event EventHandler<SerialDataReceivedEventArgs> DataReceived;
         public event EventHandler<SerialErrorReceivedEventArgs> ErrorReceived;
-
-        public void PressButton(int buttonIndex, TimeSpan holdFor)
-        {
-            _protocol.PressButton(buttonIndex, holdFor);
-        }
 
         public void Open()
         {
@@ -84,9 +87,11 @@ namespace K8090.ManagedClient.Mocks
             _data = _protocol.GetResponseFor(data);
         }
 
-        public MockSerialPortStream()
+        public MockSerialPortStream(bool timersInMilliseconds = false)
         {
-            _protocol = new MockRelayProtocol(this);
+            _protocol = new MockRelayProtocol(this, timersInMilliseconds);
+            _protocol.OnSimulatedButtonPress += (sender, e) => OnSimulatedButtonPress?.Invoke(this, e);
+            _protocol.OnSimulatedButtonRelease += (sender, e) => OnSimulatedButtonRelease?.Invoke(this, e);
         }
 
         #region STUFF WE DON'T USE
