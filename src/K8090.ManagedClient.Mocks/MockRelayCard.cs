@@ -21,6 +21,11 @@ namespace K8090.ManagedClient.Mocks
             _jumperOn = on;
         }
 
+        public void SimulateButtonPress(int buttonIndex)
+        {
+            SimulateButtonPress(buttonIndex, TimeSpan.FromMilliseconds(10));
+        }
+
         public void SimulateButtonPress(int buttonIndex, TimeSpan holdFor)
         {
             _mockSerialPort.SimulateButtonPress(buttonIndex, holdFor, _jumperOn);

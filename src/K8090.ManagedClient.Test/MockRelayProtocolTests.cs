@@ -49,7 +49,7 @@ namespace K8090.ManagedClient.Test.Unit
             };
 
             _card.SimulateSetJumper(true);
-            _card.SimulateButtonPress(0, TimeSpan.FromMilliseconds(10));
+            _card.SimulateButtonPress(TEST_BUTTON);
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace K8090.ManagedClient.Test.Unit
             };
 
             _card.SetButtonModes(ButtonMode.Momentary);
-            _card.SimulateButtonPress(TEST_BUTTON, TimeSpan.FromMilliseconds(10));
+            _card.SimulateButtonPress(TEST_BUTTON);
         }
 
         [TestCase(true)]
@@ -86,7 +86,7 @@ namespace K8090.ManagedClient.Test.Unit
             };
 
             _card.SetButtonModes(ButtonMode.Toggle);
-            _card.SimulateButtonPress(TEST_BUTTON, TimeSpan.FromMilliseconds(10));
+            _card.SimulateButtonPress(TEST_BUTTON);
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace K8090.ManagedClient.Test.Unit
             _card.SetRelayTimerDefaultDelay(10, 0); // time is actually in ms
             _card.SetButtonModes(ButtonMode.Timer);
 
-            _card.SimulateButtonPress(TEST_BUTTON, TimeSpan.FromMilliseconds(10));
+            _card.SimulateButtonPress(TEST_BUTTON);
         }
     }
 }
