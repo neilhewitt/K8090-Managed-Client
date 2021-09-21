@@ -16,7 +16,7 @@ namespace ManagedTester
 
             try
             {
-                RelayCard card = new("COM4", new MockSerialPortStream());
+                RelayCard card = new("COM4");
                 card.OnRelayStateChanged += OnRelayStateChanged; // will display all relay change event data
                 card.Connect();
                 card.Reset();

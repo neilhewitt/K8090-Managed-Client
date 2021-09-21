@@ -54,7 +54,7 @@ namespace K8090.ManagedClient
             EnsureConnected();
             if (_relayState == 0) return;
 
-            _ignoreResponses = true;
+            _ignoreResponses = true; // suppresses event generation but allows queued responses to clear
             SendCommandAndAwaitAllResponses(Command.RelayOff, 0xFF);
             _relayState = 0;
             _ignoreResponses = false;
@@ -163,7 +163,7 @@ namespace K8090.ManagedClient
             SendCommand(Command.StartRelayTimer, relays, delayInSeconds.HighByte(), delayInSeconds.LowByte());
         }
 
-        public void SetRelayTimerDefaultDelay(ushort delayInSeconds, params int[] relayIndexes)
+        public void SetRelayTimersDefaultDelay(ushort delayInSeconds, params int[] relayIndexes)
         {
             byte relays = 0;
             foreach (int relayIndex in relayIndexes)
@@ -286,7 +286,7 @@ namespace K8090.ManagedClient
             IEnumerable<DataPacket> packets = SendCommandAndAwaitAllResponses(command, mask, param1, param2);
             if (response != Response.None)
             {
-                command = (Command)response; // response is a subset of command with the same cardinal values
+                command = (Command)response; // response is a subset of command with the same cardinal values, so directly convertible
             }
 
             return packets.Where(x => x.Command == command);
@@ -304,8 +304,14 @@ namespace K8090.ManagedClient
             DateTime started = DateTime.Now;
             while (!_responseReceived && !_ignoreResponses)
             {
+                // loop and wait until some data has been received in the DataReceived event handler below,
+                // then we pass it back up the method chain to the caller in the correctly filtered form
+                // if a timeout threshold is passed, we abandon ship - this shouldn't happen unless the board
+                // was disconnected mid-operation...
+
                 if (DateTime.Now.Subtract(started) > TimeSpan.FromMilliseconds(WAIT_TIMEOUT_IN_MILLISECONDS))
                 {
+                    _responseReceived = false;
                     throw new ManagedClientException("Wait for reply from K8090 board timed out. Check connection.");
                 }
 
@@ -327,6 +333,9 @@ namespace K8090.ManagedClient
             {
                 List<DataPacket> packets = new();
 
+                // there may be between 1 and 8 packets queued up, depending on the operation
+                // which prompted them, so we must be ready to read all of them
+
                 int read = _serialPort.Read(_buffer, 0, BUFFER_SIZE);
                 if (read >= PACKET_SIZE)
                 {
@@ -345,6 +354,9 @@ namespace K8090.ManagedClient
 
                 foreach (DataPacket packet in packets)
                 {
+                    // for data packets indicating a change in relay or button status (relay on/off, button pressed/released)
+                    // we invoke events that notify subscribers of these changes
+
                     switch (packet.Command)
                     {
                         case Command.RelayStatus:
@@ -371,7 +383,7 @@ namespace K8090.ManagedClient
                 }
 
                 _packetsReceived = packets;
-                _responseReceived = true;
+                _responseReceived = true; // this is a semaphore which allows methods that send a command and await a response to be completed (see AwaitAllResponses)
             }
         }
 

@@ -102,7 +102,7 @@ namespace K8090.ManagedClient.Test.Unit
                 Assert.That(_buttonStatus.PressedNow, Is.False);
             };
 
-            _card.SetRelayTimerDefaultDelay(10, 0); // time is actually in ms
+            _card.SetRelayTimersDefaultDelay(10, 0); // time is actually in ms
             _card.SetButtonModes(ButtonMode.Timer);
 
             _card.SimulateButtonPress(TEST_BUTTON);
