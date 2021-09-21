@@ -30,7 +30,7 @@ It's pretty simple!
 
 ## Mocking for development or testing without the board ##
 
-If you're looking to develop code using the library but you don't have a K8090 available yet, or you want to use it in code you will be unit testing, you can still use the library by using a mock. Include the _K8009.ManagedClient.Mocks_ assembly and instead of ***RelayCard*** use:
+If you're looking to develop code using the library but you don't have a K8090 available yet, or you want to use it in code you will be unit testing, you can still use the library by using a mock. Include the _K8090.ManagedClient.Mocks_ assembly and instead of ***RelayCard*** use:
 
     MockRelayCard card = new MockRelayCard("COM4");
 
