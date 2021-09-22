@@ -16,6 +16,7 @@ namespace K8090.ManagedClient
         protected ISerialPortStream _serialPort;
         private byte[] _buffer = new byte[BUFFER_SIZE];
         private byte _relayState = 0;
+        private byte _timerActive = 0;
         private bool _ignoreResponses = false;
         private bool _responseReceived = false;
         private IEnumerable<DataPacket> _packetsReceived;
@@ -25,6 +26,7 @@ namespace K8090.ManagedClient
 
         public event EventHandler<RelayStatus> OnRelayStateChanged;
         public event EventHandler<ButtonStatus> OnButtonStateChanged;
+        public event EventHandler<RelayStatus> OnRelayTimerExpired;
 
         public void Connect()
         {
@@ -157,6 +159,7 @@ namespace K8090.ManagedClient
                 if (relayIndex < 8 && relayIndex >= 0)
                 {
                     relays = relays.SetBit(relayIndex, true);
+                    _timerActive = _timerActive.SetBit(relayIndex, true);
                 }
             }
 
@@ -365,10 +368,17 @@ namespace K8090.ManagedClient
                             for (int i = 0; i < 8; i++)
                             {
                                 bool relayOnOffState = packet.Param1.GetBit(i);
+                                
                                 if (relayState.GetBit(i) != relayOnOffState)
                                 {
                                     _relayState = _relayState.SetBit(i, relayOnOffState);
                                     OnRelayStateChanged?.Invoke(this, relayStatus[i]);
+                                }
+                                
+                                if (_timerActive.GetBit(i) && relayOnOffState == false)
+                                {
+                                    _timerActive = _timerActive.SetBit(i, false);
+                                    OnRelayTimerExpired?.Invoke(this, relayStatus[i]);
                                 }
                             }
                             break;

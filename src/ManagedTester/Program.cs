@@ -18,8 +18,11 @@ namespace ManagedTester
             {
                 RelayCard card = new("COM4");
                 card.OnRelayStateChanged += OnRelayStateChanged; // will display all relay change event data
+                card.OnRelayTimerExpired += OnRelayTimerExpired;
                 card.Connect();
                 card.Reset();
+
+                card.SetAndStartRelayTimers(15, 1);
 
                 while (true)
                 {
@@ -37,6 +40,11 @@ namespace ManagedTester
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        private static void OnRelayTimerExpired(object sender, RelayStatus status)
+        {
+            Console.WriteLine($"Relay { status.RelayIndex } timer expired.");
         }
 
         private static void OnRelayStateChanged(object sender, RelayStatus status)
