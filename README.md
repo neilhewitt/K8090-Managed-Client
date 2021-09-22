@@ -76,6 +76,8 @@ If you specify an out of range index, that command will be ignored and/or null r
 
 The client exposes two events, ***OnRelayStateChanged*** and ***OnButtonStateChanged***. These are fired when the state of a relay or button changes (for example, when you give the command to set it OFF when it is ON, or when the button in Toggle mode is pressed) and provide a *RelayStatus* or *ButtonStatus* object for that relay or button. When multiple relays change state at the same time, this event will fire once for each relay. They do not fire for changes to *ButtonMode* or timer settings.
 
+The client also exposes the event ***OnRelayTimerExpired***. This supplies a *RelayStatus* for a relay whose timer has just expired. Note that both ***OnRelayStateChanged*** and ***OnRelayTimerExpired*** will fire for the same relay at this point.
+
 
 ## Timers ##
 
