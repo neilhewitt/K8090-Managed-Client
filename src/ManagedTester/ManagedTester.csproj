@@ -6,7 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="K8090.ManagedClient" Version="1.0.0" />
+    <ProjectReference Include="..\K8090.ManagedClient.Mocks\K8090.ManagedClient.Mocks.csproj" />
+    <ProjectReference Include="..\K8090.ManagedClient\K8090.ManagedClient.csproj" />
   </ItemGroup>
 
 </Project>
