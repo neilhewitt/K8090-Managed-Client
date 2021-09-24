@@ -4,9 +4,24 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>K8090.ManagedClient</AssemblyName>
     <RootNamespace>K8090.ManagedClient</RootNamespace>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <Authors>Neil Hewitt</Authors>
+    <Company>RadiusZero</Company>
+    <Product>K8090 Managed Client</Product>
+    <Description>A standalone managed client implementation for the Velleman K8090 board series that can be used in 32 or 64-bit projects.</Description>
+    <Copyright>Copyright 2021 Neil Hewitt</Copyright>
+    <PackageProjectUrl>https://github.com/neilhewitt/K8090-Managed-Client</PackageProjectUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/neilhewitt/K8090-Managed-Client</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NuGet.Build.Tasks.Pack" Version="5.11.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="SerialPortStream" Version="2.3.1">
       <ExcludeAssets>runtime</ExcludeAssets>
       <PrivateAssets>all</PrivateAssets>

@@ -1,6 +1,5 @@
 ﻿using System;
 using K8090.ManagedClient;
-using K8090.ManagedClient.Mocks;
 using RJCP.IO.Ports;
 using System.Threading;
 using System.Collections.Generic;
