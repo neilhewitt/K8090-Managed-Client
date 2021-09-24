@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using K8090.ManagedClient;
 using K8090.ManagedClient.Mocks;
 using NUnit.Framework;
 
@@ -10,12 +9,12 @@ namespace K8090.ManagedClient.Test.Unit
     [TestFixture]
     public class RelayCardTests
     {
-        private MockRelayCard _card;
+        private RelayCard _card;
 
         [SetUp]
         public void Setup()
         {
-            _card = new MockRelayCard("COM4", true);
+            _card = new RelayCard("COM4", new MockSerialPortStream(true));
             _card.Connect();
         }
 
