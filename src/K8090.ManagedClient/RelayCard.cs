@@ -26,6 +26,7 @@ namespace K8090.ManagedClient
 
         public event EventHandler<RelayStatus> OnRelayStateChanged;
         public event EventHandler<ButtonStatus> OnButtonStateChanged;
+        public event EventHandler<RelayStatus> OnRelayTimerStarted;
         public event EventHandler<RelayStatus> OnRelayTimerExpired;
 
         public void Connect()
@@ -41,6 +42,9 @@ namespace K8090.ManagedClient
             }
             catch (InvalidOperationException ex)
             {
+                _serialPort.Close();
+                _serialPort.Dispose();
+
                 // should be able to work this out better (card not present etc) by examining the exception type... 
                 throw new ConnectionException("Could not connect to the K8090 board. See InnerException for details.", ex);
             }
@@ -367,18 +371,25 @@ namespace K8090.ManagedClient
                             var relayStatus = BuildRelayStatus(packet);
                             for (int i = 0; i < 8; i++)
                             {
-                                bool relayOnOffState = packet.Param1.GetBit(i);
-                                
+                                bool relayOnOffState = relayStatus[i].CurrentlyOn;
+
                                 if (relayState.GetBit(i) != relayOnOffState)
                                 {
                                     _relayState = _relayState.SetBit(i, relayOnOffState);
                                     OnRelayStateChanged?.Invoke(this, relayStatus[i]);
-                                }
-                                
-                                if (_timerActive.GetBit(i) && relayOnOffState == false)
-                                {
-                                    _timerActive = _timerActive.SetBit(i, false);
-                                    OnRelayTimerExpired?.Invoke(this, relayStatus[i]);
+
+                                    if (_timerActive.GetBit(i))
+                                    {
+                                        if (relayOnOffState == false)
+                                        {
+                                            _timerActive = _timerActive.SetBit(i, false);
+                                            OnRelayTimerExpired?.Invoke(this, relayStatus[i]);
+                                        }
+                                        else
+                                        {
+                                            OnRelayTimerStarted?.Invoke(this, relayStatus[i]);  
+                                        }
+                                    }
                                 }
                             }
                             break;
@@ -420,12 +431,18 @@ namespace K8090.ManagedClient
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             if (_serialPort != null && _serialPort.IsOpen)
             {
                 _serialPort.Close();
             }
 
             _serialPort?.Dispose();
+        }
+
+        public void Finalize()
+        {
+            Dispose();
         }
 
         public RelayCard(string portName, ISerialPortStream portStream)

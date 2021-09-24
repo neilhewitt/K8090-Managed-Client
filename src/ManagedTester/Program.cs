@@ -14,32 +14,55 @@ namespace ManagedTester
             // this is just a simple test routine for the card - you can add extra tests to this
             // it's not a substitute for a unit test suite which is coming... honest!
 
+            if (args.Length == 0)
+            {
+                Console.WriteLine("No argument supplied. Argument must the COM port name to be used.");
+                return;
+            }
+
+            Console.WriteLine("K8090 Board Test Program\n------------------------\n");
+            Console.WriteLine(("Press 'q' to quit.\n"));
+
             try
             {
-                RelayCard card = new("COM4");
-                card.OnRelayStateChanged += OnRelayStateChanged; // will display all relay change event data
-                card.OnRelayTimerExpired += OnRelayTimerExpired;
-                card.Connect();
-                card.Reset();
+                /*** NOTE THAT YOU MUST SET THE CORRECT COM PORT NAME IN THE DEBUG -> COMMANDLINE SETTINGS BEFORE DEBUGGING THIS CODE. DEFAULT IS COM4 ***/
 
-                card.SetAndStartRelayTimers(15, 1);
-
-                while (true)
+                using (RelayCard card = new(args[0]))
                 {
-                    // throb relay 0 on and off
+                    card.OnRelayStateChanged += OnRelayStateChanged; // will display all relay change event data
+                    card.OnRelayTimerStarted += OnRelayTimerStarted;
+                    card.OnRelayTimerExpired += OnRelayTimerExpired;
+                    card.Connect();
+                    card.Reset();
 
-                    card.SetRelayOn(0);
-                    Thread.Sleep(500);
-                    card.SetRelayOff(0);
-                    Thread.Sleep(500);
+                    card.SetAndStartRelayTimers(5, 1);
+
+                    while (true)
+                    {
+                        // throb relay 0 on and off
+
+                        card.SetRelayOn(0);
+                        Thread.Sleep(500);
+                        card.SetRelayOff(0);
+                        Thread.Sleep(500);
+
+                        if (Console.KeyAvailable)
+                        {
+                            if (Console.ReadKey(true).KeyChar == 'q')
+                                return;
+                        }
+                    }
                 }
-
-                Console.ReadLine();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        private static void OnRelayTimerStarted(object sender, RelayStatus status)
+        {
+            Console.WriteLine($"Relay { status.RelayIndex } timer started.");
         }
 
         private static void OnRelayTimerExpired(object sender, RelayStatus status)
