@@ -2,7 +2,9 @@
 
 A 64-bit managed client library for the Velleman K8090/VM8090/WMI8090 USB relay boards. 
 
-Since Velleman has refused to provide 64-bit versions of their .NET / COM libraries, I decided to write one myself. The project is built for .NET 5, specifically ***net5.0-windows***, so it's not cross-platform. It could probably be made cross-platform if you so desired - send me a PR!
+Since Velleman has refused to provide 64-bit versions of their .NET / COM libraries, I decided to write one myself. The project is built for .NET 5 / AnyCPU and it *should* work cross-platform but I have not tested on any OS other than Windows at this point. Technically it should work on a 32-bit platform too but again this is untested. Hopefully I'll get an opportunity to test these in the near future, but if you manage to get this library running successfully on Linux or MacOS please open an issue to let me know or send a PR if you needed to fix the code. 
+
+_Note that if you want to run this on Linux or MacOS there are some support libraries that must be installed for the underlying serial port software to work and these are not part of this project or any NuGet package. See the notes here: https://github.com/jcurl/serialportstream._
 
 The client talks directly to the serial port to which the relay board is assigned. Commands are sent and events received via 7-byte data packets. The client wraps this process and provides suitably abstracted methods to access the various functions of the board.
 
@@ -72,16 +74,16 @@ Many APIs follow the pattern of taking a _params int[]_ of relay indexes to be a
 If you specify an out of range index, that command will be ignored and/or null returned. Exceptions are not thrown for out of range indexes.
 
 
+## Timers ##
+
+Each relay has a timer with a value in seconds which can be triggered. When the timer is started, the relay is set to ON, and when it expires, the relay is set to OFF. Timer values are stored in EEPROM on the board, so if you change the default delay using ***SetRelayTimerDefaultDelay***, this delay is stored when the board is powered down and restored when it is powered up again. You can also start the timer for each relay with a custom delay which is not stored and does not affect the default delay by using ***SetAndStartRelayTimers***. You can query the delay attached to one or more relays with ***GetRelayTimerDelays***, and if you need to find out how much time is remaining on a timer that has been started, ***GetRelayTimerDelaysRemaining*** is the API you need.
+
+
 ## Events ##
 
 The client exposes two events, ***OnRelayStateChanged*** and ***OnButtonStateChanged***. These are fired when the state of a relay or button changes (for example, when you give the command to set it OFF when it is ON, or when the button in Toggle mode is pressed) and provide a *RelayStatus* or *ButtonStatus* object for that relay or button. When multiple relays change state at the same time, this event will fire once for each relay. They do not fire for changes to *ButtonMode* or timer settings.
 
-The client also exposes the event ***OnRelayTimerExpired***. This supplies a *RelayStatus* for a relay whose timer has just expired. Note that both ***OnRelayStateChanged*** and ***OnRelayTimerExpired*** will fire for the same relay at this point.
-
-
-## Timers ##
-
-Each relay has a timer with a value in seconds which can be triggered. When the timer is started, the relay is set to ON, and when it expires, the relay is set to OFF. Timer values are stored in EEPROM on the board, so if you change the default delay using ***SetRelayTimerDefaultDelay***, this delay is stored when the board is powered down and restored when it is powered up again. You can also start the timer for each relay with a custom delay which is not stored and does not affect the default delay by using ***SetAndStartRelayTimers***. You can query the delay attached to one or more relays with ***GetRelayTimerDelays***, and if you need to find out how much time is remaining on a timer that has been started, ***GetRelayTimerDelaysRemaining*** is the API you need.
+The client also exposes the events ***OnRelayTimerStarted*** and ***OnRelayTimerExpired***. These fire when a timer starts and expires respectively, and each supplies a *RelayStatus* for the relay whose timer has just started or expired. Note that the ***OnRelayStateChanged*** event will also fire for the same relay as well when the timer starts or expires.
 
 
 ## RelayStatus ##
@@ -120,4 +122,4 @@ If this jumper on the board is set to ON, then button presses do not affect the 
 
 ## Acknowledgements ##
 
-This library uses SerialPortStream by Jason Curl (https://www.nuget.org/packages/SerialPortStream)
+This library uses SerialPortStream by Jason Curl (https://www.nuget.org/packages/SerialPortStream) which is an awesome drop-in replacement for the built-in SerialPort support from Microsoft. SerialPort has significant issues that SerialPortStream fixes.
