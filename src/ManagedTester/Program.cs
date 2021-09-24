@@ -11,11 +11,11 @@ namespace ManagedTester
         static void Main(string[] args)
         {
             // this is just a simple test routine for the card - you can add extra tests to this
-            // it's not a substitute for a unit test suite which is coming... honest!
+            // it's not a substitute for a unit test suite... and now there is one!
 
             if (args.Length == 0)
             {
-                Console.WriteLine("No argument supplied. Argument must the COM port name to be used.");
+                Console.WriteLine("No argument supplied. Argument must be the COM port name to be used.");
                 return;
             }
 
