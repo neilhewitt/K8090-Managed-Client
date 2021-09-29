@@ -15,6 +15,7 @@
     <RepositoryUrl>https://github.com/neilhewitt/K8090-Managed-Client</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
