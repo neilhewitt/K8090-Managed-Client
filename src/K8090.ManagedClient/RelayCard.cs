@@ -58,10 +58,9 @@ namespace K8090.ManagedClient
         public void Reset()
         {
             EnsureConnected();
-            if (_relayState == 0) return;
 
             _ignoreResponses = true; // suppresses event generation but allows queued responses to clear
-            SendCommandAndAwaitAllResponses(Command.RelayOff, 0xFF);
+            SetRelaysOff(0, 1, 2, 3, 4, 5, 6, 7);
             _relayState = 0;
             _ignoreResponses = false;
         }
@@ -281,6 +280,7 @@ namespace K8090.ManagedClient
 
             DataPacket packet = new DataPacket(command, mask, param1, param2);
             _serialPort.Write(packet.AsByteArray, 0, 7);
+            _serialPort.Flush();
         }
 
         private DataPacket SendCommandAndAwaitResponse(Command command, Response response, byte mask = 0, byte param1 = 0, byte param2 = 0)
