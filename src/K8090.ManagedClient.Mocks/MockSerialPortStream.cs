@@ -65,6 +65,10 @@ namespace K8090.ManagedClient.Mocks
             return byteCount;
         }
 
+        public void Flush()
+        {
+        }
+
         public void InvokeDataReceived(byte[] data)
         {
             _data = data;
@@ -165,11 +169,6 @@ namespace K8090.ManagedClient.Mocks
         }
 
         public void DiscardOutBuffer()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Flush()
         {
             throw new NotImplementedException();
         }
