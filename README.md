@@ -41,7 +41,15 @@ The ***MockSerialPortStream*** used in the ***MockRelayCard*** implements *ISeri
 
 With the ***MockRelayCard***, you can call *SimulateButtonPress(int buttonIndex, TimeSpan holdFor)* to simulate pressing one of the buttons on the board for a time span, and this will generate the correct actions and events as if the hardware button was pressed.
 
-Note: When creating the ***MockRelayCard*** instance you can specify an optional boolean parameter in the constructor _makeDelaySecondsIntoMilliseconds_. If _true_, all simulated delays are changed from seconds (as on the actual board) to milliseconds. This is useful for test suites where you don't want to delay for a second or more. See the included test suite for an example of this approach. 
+Note: When creating the ***MockRelayCard*** instance you can specify an optional boolean parameter in the constructor _makeDelaySecondsIntoMilliseconds_. If _true_, all simulated delays are changed from seconds (as on the actual board) to milliseconds. This is useful for test suites where you don't want to delay for a second or more. See the included test suite for an example of this approach.
+
+If you prefer to use the existing ***RelayCard*** class in your test but want to mock out the serial port behaviour, use the constructor overload:
+
+    RelayCard card = new RelayCard("COM4", new MockSerialPortStream(true));
+    
+(Note the constructor parameter for ***MockSerialPortStream*** is the same _makeDelaySecondsIntoMilliseconds_ as mentioned for the ***MockRelayCard*** constructor.)
+
+If you do this then you do not have access to the *SimulateButtonPress* method, but otherwise ***RelayCard*** will function as if it were connected to a real K8090 board.
 
 
 ## Client API ##
