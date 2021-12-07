@@ -8,6 +8,8 @@ _Note that if you want to run this on Linux or MacOS there are some support libr
 
 The client talks directly to the serial port to which the relay board is assigned. Commands are sent and events received via 7-byte data packets. The client wraps this process and provides suitably abstracted methods to access the various functions of the board.
 
+A NuGet package can be downloaded from https://www.nuget.org/packages/K8090.ManagedClient.
+
 ## Getting started ##
 
     using K8090.ManagedClient;
