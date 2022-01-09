@@ -10,7 +10,7 @@ The client talks directly to the serial port to which the relay board is assigne
 
 A NuGet package can be downloaded from https://www.nuget.org/packages/K8090.ManagedClient.
 
-#### _Note: Relay index order_ ####
+### _Note: Relay index order_ ###
 
 _All methods / properties / values identifying relays by index are based on the **bits in the mask byte used to specify them** which means they are 0-7 and **not** 1-8 as numbered on the K8090 board. Also, because the bit index order is **right to left**, relay 0 (bit 0) is the **right-most** or least-significant bit, whereas the relays on the board are labelled from **left to right** and the relay labelled '1' corresponds to **bit 7** in the mask byte, '2' to **bit 6**, and so on. You should take account of this when programming the board and identifying which relays to manipulate or else you will be switching on and off the wrong relays!_
 
