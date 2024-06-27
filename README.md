@@ -2,7 +2,7 @@
 
 A 64-bit managed client library for the Velleman K8090/VM8090/WMI8090 USB relay boards. 
 
-Since Velleman has not provided 64-bit versions of their .NET / COM libraries, I decided to write one myself. The project is built for .NET 5 / AnyCPU and it *should* work cross-platform but I have not tested on any OS other than Windows at this point. Technically it should work on a 32-bit platform too but again this is untested. Hopefully I'll get an opportunity to test these in the near future, but if you manage to get this library running successfully on Linux or MacOS please open an issue to let me know or send a PR if you needed to fix the code. 
+Since Velleman has not provided 64-bit versions of their .NET / COM libraries, I decided to write one myself. The project is built for .NET 8 / AnyCPU but is multi-targeted to .NET 6 and .NET Standard 2.0 so it will work on both .NET and .NET Framework projects, and it *should* work cross-platform but I have not tested on any OS other than Windows at this point. Technically it should work on a 32-bit platform too but again this is untested. Hopefully I'll get an opportunity to test these in the near future, but if you manage to get this library running successfully on Linux or MacOS please open an issue to let me know or send a PR if you needed to fix the code. 
 
 _Note that if you want to run this on Linux or MacOS there are some support libraries that must be installed for the underlying serial port software to work and these are not part of this project or any NuGet package. See the notes here: https://github.com/jcurl/serialportstream._
 
