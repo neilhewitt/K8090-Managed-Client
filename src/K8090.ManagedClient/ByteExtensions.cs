@@ -46,11 +46,8 @@ namespace K8090.ManagedClient
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte SetBit(this byte input, int bitIndex, bool state)
         {
-            return state switch
-            {
-                true => (byte)(input | (1 << bitIndex)),
-                false => (byte)(input & ~(1 << bitIndex))
-            };
+            if (state == true) return (byte)(input | (1 << bitIndex));
+            else return (byte)(input & ~(1 << bitIndex));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

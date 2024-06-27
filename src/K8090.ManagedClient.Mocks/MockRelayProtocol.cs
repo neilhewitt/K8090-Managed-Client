@@ -150,7 +150,7 @@ namespace K8090.ManagedClient.Mocks
                     return MakeData(Response.RelayStatus, 0x00, b1, b2);
 
                 case Command.QueryRelayTimerDelay:
-                    List<byte> bytes = new();
+                    List<byte> bytes = new List<byte>();
                     for (int i = 0; i < 8; i++)
                     {
                         mask = 0;
@@ -290,11 +290,8 @@ namespace K8090.ManagedClient.Mocks
 
         private byte SetBit(byte input, int bitIndex, bool state)
         {
-            return state switch
-            {
-                true => (byte)(input | (1 << bitIndex)),
-                false => (byte)(input & ~(1 << bitIndex))
-            };
+            if (state) return (byte)(input | (1 << bitIndex));
+            else return (byte)(input & ~(1 << bitIndex));
         }
 
         private void DataReceived(object sender, RJCP.IO.Ports.SerialDataReceivedEventArgs e)

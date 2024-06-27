@@ -13,10 +13,16 @@ namespace ManagedTester
             // this is just a simple test routine for the card - you can add extra tests to this
             // it's not a substitute for a unit test suite... and now there is one!
 
+            string comPort;
+
             if (args.Length == 0)
             {
                 Console.WriteLine("No argument supplied. Argument must be the COM port name to be used.");
                 return;
+            }
+            else
+            {
+                comPort = args[0];
             }
 
             Console.WriteLine("K8090 Board Test Program\n------------------------\n");
@@ -26,7 +32,7 @@ namespace ManagedTester
             {
                 /*** NOTE THAT YOU MUST SET THE CORRECT COM PORT NAME IN THE DEBUG -> COMMANDLINE SETTINGS BEFORE DEBUGGING THIS CODE. DEFAULT IS COM4 ***/
 
-                using (RelayCard card = new(args[0]))
+                using (RelayCard card = new(comPort))
                 {
                     card.OnRelayStateChanged += OnRelayStateChanged; // will display all relay change event data
                     card.OnRelayTimerStarted += OnRelayTimerStarted;

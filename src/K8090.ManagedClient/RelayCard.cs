@@ -108,7 +108,7 @@ namespace K8090.ManagedClient
 
         public IDictionary<int, ButtonMode> GetButtonModes()
         {
-            Dictionary<int, ButtonMode> buttonModes = new();
+            Dictionary<int, ButtonMode> buttonModes = new Dictionary<int, ButtonMode>();
             DataPacket packet = SendCommandAndAwaitResponse(Command.QueryButtonMode, Response.QueryButtonMode);
             for (int i = 0; i < 8; i++)
             {
@@ -211,7 +211,7 @@ namespace K8090.ManagedClient
 
         private IDictionary<int, RelayStatus> BuildRelayStatus(DataPacket packet)
         {
-            Dictionary<int, RelayStatus> statusList = new();
+            Dictionary<int, RelayStatus> statusList = new Dictionary<int, RelayStatus>();
 
             for (int i = 0; i < 8; i++)
             {
@@ -229,7 +229,7 @@ namespace K8090.ManagedClient
 
         private IDictionary<int, ButtonStatus> BuildButtonStatus(DataPacket packet)
         {
-            Dictionary<int, ButtonStatus> statusList = new();
+            Dictionary<int, ButtonStatus> statusList = new Dictionary<int, ButtonStatus>();
 
             for (int i = 0; i < 8; i++)
             {
@@ -259,7 +259,7 @@ namespace K8090.ManagedClient
             SendCommand(Command.QueryRelayTimerDelay, relays, (byte)(remainingDelay ? 2 : 1));
             IEnumerable<DataPacket> packets = SendCommandAndAwaitResponses(Command.QueryRelayTimerDelay, Response.QueryRelayTimerDelay);
 
-            Dictionary<int, ushort> delays = new();
+            Dictionary<int, ushort> delays = new Dictionary<int, ushort>();
             foreach (DataPacket packet in packets)
             {
                 for (int i = 0; i < 8; i++)
@@ -307,7 +307,7 @@ namespace K8090.ManagedClient
 
         private IEnumerable<DataPacket> AwaitAllResponses()
         {
-            List<DataPacket> packets = new();
+            List<DataPacket> packets = new List<DataPacket>();
             DateTime started = DateTime.Now;
             while (!_responseReceived && !_ignoreResponses)
             {
@@ -338,7 +338,7 @@ namespace K8090.ManagedClient
         {
             if (!_ignoreResponses)
             {
-                List<DataPacket> packets = new();
+                List<DataPacket> packets = new List<DataPacket>();
 
                 // there may be between 1 and 8 packets queued up, depending on the operation
                 // which prompted them, so we must be ready to read all of them
@@ -349,7 +349,7 @@ namespace K8090.ManagedClient
                     int index = 0;
                     while (true)
                     {
-                        DataPacket packet = new DataPacket(_buffer[index..(index + PACKET_SIZE)]);
+                        DataPacket packet = new DataPacket(_buffer.Skip(index).Take(PACKET_SIZE).ToArray());
                         packets.Add(packet);
                         index += PACKET_SIZE;
                         if (read - index < PACKET_SIZE)

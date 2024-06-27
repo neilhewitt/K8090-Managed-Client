@@ -1,8 +1,7 @@
 {
   "profiles": {
     "ManagedTester": {
-      "commandName": "Project",
-      "commandLineArgs": "COM4"
+      "commandName": "Project"
     }
   }
 }

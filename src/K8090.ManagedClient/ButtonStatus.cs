@@ -2,10 +2,10 @@
 {
     public class ButtonStatus
     {
-        public int ButtonIndex { get; init; }
-        public bool PressedNow { get; init; }
-        public bool WasPressed { get; init; }
-        public bool WasReleased { get; init; }
+        public int ButtonIndex { get; private set; }
+        public bool PressedNow { get; private set; }
+        public bool WasPressed { get; private set; }
+        public bool WasReleased { get; private set; }
 
         public ButtonStatus(int index, bool pressedNow, bool wasPressed, bool wasReleased)
         {

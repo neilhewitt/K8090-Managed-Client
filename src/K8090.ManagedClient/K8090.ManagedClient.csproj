@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+	<TargetFrameworks>net8.0;net6.0;netstandard2.0;</TargetFrameworks>
     <AssemblyName>K8090.ManagedClient</AssemblyName>
     <RootNamespace>K8090.ManagedClient</RootNamespace>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/neilhewitt/K8090-Managed-Client</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
