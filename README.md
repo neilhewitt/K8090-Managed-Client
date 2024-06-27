@@ -8,6 +8,12 @@ _Note that if you want to run this on Linux or MacOS there are some support libr
 
 The client talks directly to the serial port to which the relay board is assigned. Commands are sent and events received via 7-byte data packets. The client wraps this process and provides suitably abstracted methods to access the various functions of the board.
 
+A NuGet package can be downloaded from https://www.nuget.org/packages/K8090.ManagedClient.
+
+### _Note: Relay index order_ ###
+
+_All methods / properties / values identifying relays by index are based on the **bits in the mask byte used to specify them** which means they are 0-7 and **not** 1-8 as numbered on the K8090 board. Also, because the bit index order is **right to left**, relay 0 (bit 0) is the **right-most** or least-significant bit, whereas the relays on the board are labelled from **left to right** and the relay labelled '1' corresponds to **bit 7** in the mask byte, '2' to **bit 6**, and so on. You should take account of this when programming the board and identifying which relays to manipulate or else you will be switching on and off the wrong relays!_
+
 ## Getting started ##
 
     using K8090.ManagedClient;
@@ -41,7 +47,15 @@ The ***MockSerialPortStream*** used in the ***MockRelayCard*** implements *ISeri
 
 With the ***MockRelayCard***, you can call *SimulateButtonPress(int buttonIndex, TimeSpan holdFor)* to simulate pressing one of the buttons on the board for a time span, and this will generate the correct actions and events as if the hardware button was pressed.
 
-Note: When creating the ***MockRelayCard*** instance you can specify an optional boolean parameter in the constructor _makeDelaySecondsIntoMilliseconds_. If _true_, all simulated delays are changed from seconds (as on the actual board) to milliseconds. This is useful for test suites where you don't want to delay for a second or more. See the included test suite for an example of this approach. 
+Note: When creating the ***MockRelayCard*** instance you can specify an optional boolean parameter in the constructor _makeDelaySecondsIntoMilliseconds_. If _true_, all simulated delays are changed from seconds (as on the actual board) to milliseconds. This is useful for test suites where you don't want to delay for a second or more. See the included test suite for an example of this approach.
+
+If you prefer to use the existing ***RelayCard*** class in your test but want to mock out the serial port behaviour, use the constructor overload:
+
+    RelayCard card = new RelayCard("COM4", new MockSerialPortStream(true));
+    
+(Note the constructor parameter for ***MockSerialPortStream*** is the same _makeDelaySecondsIntoMilliseconds_ as mentioned for the ***MockRelayCard*** constructor.)
+
+If you do this then you do not have access to the *SimulateButtonPress* method, but otherwise ***RelayCard*** will function as if it were connected to a real K8090 board.
 
 
 ## Client API ##
@@ -119,7 +133,6 @@ Buttons can be set to one of three modes:
 ## The Event Jumper ##
 
 If this jumper on the board is set to ON, then button presses do not affect the relays, but the ***OnButtonStateChange*** event is still fired. This is useful if you attach separate buttons to the button interface port on the board, so you can intercept a button press in software and react accordingly.
-
 
 ## Acknowledgements ##
 
