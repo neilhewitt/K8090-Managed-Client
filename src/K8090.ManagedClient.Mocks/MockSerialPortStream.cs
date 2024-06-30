@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace K8090.ManagedClient.Mocks
@@ -239,6 +240,51 @@ namespace K8090.ManagedClient.Mocks
         }
 
         public void WriteLine(string text)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CopyToAsync(Stream destination)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CopyToAsync(Stream destination, int bufferSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task FlushAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task FlushAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> ReadAsync(byte[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task WriteAsync(byte[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

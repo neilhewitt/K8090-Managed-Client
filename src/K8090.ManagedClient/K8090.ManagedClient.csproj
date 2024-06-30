@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFrameworks>net8.0;net6.0;netstandard2.0;</TargetFrameworks>
+	<TargetFrameworks>net6.0;netstandard2.0;</TargetFrameworks>
     <AssemblyName>K8090.ManagedClient</AssemblyName>
     <RootNamespace>K8090.ManagedClient</RootNamespace>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
@@ -15,23 +15,17 @@
     <RepositoryUrl>https://github.com/neilhewitt/K8090-Managed-Client</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
+    <Title>K8090 Managed Client</Title>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.Build.Tasks.Pack" Version="5.11.0">
+    <PackageReference Include="NuGet.Build.Tasks.Pack" Version="6.11.0-preview.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="SerialPortStream" Version="2.3.1">
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="SerialPortStream" Version="2.4.2" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy C:\Users\neilh\.nuget\packages\serialportstream\2.3.1\lib\netstandard1.5\RJCP.SerialPortStream.dll $(OutDir)" />
-  </Target>
 
 </Project>
